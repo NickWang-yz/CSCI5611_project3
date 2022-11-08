@@ -42,7 +42,8 @@ void setup(){
 }
 
 //Root
-Vec2 root = new Vec2(150,300);
+Vec2 root = new Vec2(350,300);
+Vec2 rootLeft = new Vec2(230, 300);
 
 //Arm 0
 float l0 = 100; 
@@ -60,13 +61,83 @@ float a2 = 0.3; //Wrist joint
 float l3 = 100;
 float a3 = 0.3;
 
+//Arm 0
+float l4 = 100; 
+float a4 = 0.3; //Shoulder joint
+
+//Arm 1
+float l5 = 100;
+float a5 = 0.3; //Elbow joint
+
+//Arm 2
+float l6 = 100;
+float a6 = 0.3; //Wrist joint
+
+//hand
+float l7 = 100;
+float a7 = 0.3;
+
 Vec2 start_l1,start_l2,start_l3,endPoint;
+Vec2 start_l5,start_l6,start_l7,endPoint2;
 
 void solve(){
   Vec2 goal = new Vec2(mouseX, mouseY);
   
   Vec2 startToGoal, startToEndEffector;
   float dotProd, angleDiff;
+
+  //Update wrist joint
+  startToGoal = goal.minus(start_l7);
+  startToEndEffector = endPoint2.minus(start_l7);
+  dotProd = dot(startToGoal.normalized(),startToEndEffector.normalized());
+  dotProd = clamp(dotProd,-1,1);
+  angleDiff = acos(dotProd);
+  if (cross(startToGoal,startToEndEffector) < 0)
+    a7 += angleDiff;
+  else
+    a7 -= angleDiff;
+  /*TODO: Wrist joint limits here*/
+  fk(); //Update link positions with fk (e.g. end effector changed)
+
+  //Update wrist joint
+  startToGoal = goal.minus(start_l6);
+  startToEndEffector = endPoint2.minus(start_l6);
+  dotProd = dot(startToGoal.normalized(),startToEndEffector.normalized());
+  dotProd = clamp(dotProd,-1,1);
+  angleDiff = acos(dotProd);
+  if (cross(startToGoal,startToEndEffector) < 0)
+    a6 += angleDiff;
+  else
+    a6 -= angleDiff;
+  /*TODO: Wrist joint limits here*/
+  fk(); //Update link positions with fk (e.g. end effector changed)
+
+  //Update wrist joint
+  startToGoal = goal.minus(start_l5);
+  startToEndEffector = endPoint2.minus(start_l5);
+  dotProd = dot(startToGoal.normalized(),startToEndEffector.normalized());
+  dotProd = clamp(dotProd,-1,1);
+  angleDiff = acos(dotProd);
+  if (cross(startToGoal,startToEndEffector) < 0)
+    a5 += angleDiff;
+  else
+    a5 -= angleDiff;
+  /*TODO: Wrist joint limits here*/
+  fk(); //Update link positions with fk (e.g. end effector changed)
+
+  //Update shoulder joint
+  startToGoal = goal.minus(rootLeft);
+  if (startToGoal.length() < .0001) return;
+  startToEndEffector = endPoint2.minus(rootLeft);
+  dotProd = dot(startToGoal.normalized(),startToEndEffector.normalized());
+  dotProd = clamp(dotProd,-1,1);
+  angleDiff = acos(dotProd);
+  if (cross(startToGoal,startToEndEffector) < 0)
+    a4 += angleDiff;
+  else
+    a4 -= angleDiff;
+  /*TODO: Shoulder joint limits here*/
+  fk(); //Update link positions with fk (e.g. end effector changed)
 
   //Update wrist joint
   startToGoal = goal.minus(start_l3);
@@ -122,7 +193,7 @@ void solve(){
     a0 -= angleDiff;
   /*TODO: Shoulder joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
- 
+
   println("Angle 0:",a0,"Angle 1:",a1,"Angle 2:",a2, "Angle 3:",a3);
 }
 
@@ -131,13 +202,18 @@ void fk(){
   start_l2 = new Vec2(cos(a0+a1)*l1,sin(a0+a1)*l1).plus(start_l1);
   start_l3 = new Vec2(cos(a0+a1+a2)*l2,sin(a0+a1+a2)*l2).plus(start_l2);
   endPoint = new Vec2(cos(a0+a1+a2+a3)*l3,sin(a0+a1+a2+a3)*l3).plus(start_l3);
+  
+  start_l5 = new Vec2(cos(a4)*l4,sin(a4)*l4).plus(rootLeft);
+  start_l6 = new Vec2(cos(a4+a5)*l5,sin(a4+a5)*l5).plus(start_l5);
+  start_l7 = new Vec2(cos(a4+a5+a6)*l6,sin(a4+a5+a6)*l6).plus(start_l6);
+  endPoint2 = new Vec2(cos(a4+a5+a6+a7)*l7,sin(a4+a5+a6+a7)*l7).plus(start_l7);
 }
 
 float armW = 20;
-Vec2 robotHead = new Vec2(50, 200);
-Vec2 robotBody = new Vec2(20, 230);
-Vec2 robotEyeLeft = new Vec2(75, 215);
-Vec2 robotEyeRight = new Vec2(105, 215);
+Vec2 robotHead = new Vec2(250, 200);
+Vec2 robotBody = new Vec2(220, 230);
+Vec2 robotEyeLeft = new Vec2(275, 215);
+Vec2 robotEyeRight = new Vec2(305, 215);
 void draw(){
   fk();
   solve();
@@ -188,7 +264,31 @@ void draw(){
   pushMatrix();
   translate(start_l3.x,start_l3.y);
   rotate(a0+a1+a2+a3);
-  rect(0, -armW/2, l2, armW);
+  rect(0, -armW/2, l3, armW);
+  popMatrix();
+
+  pushMatrix();
+  translate(rootLeft.x,rootLeft.y);
+  rotate(a4);
+  rect(0, -armW/2, l4, armW);
+  popMatrix();
+
+  pushMatrix();
+  translate(start_l5.x,start_l5.y);
+  rotate(a4+a5);
+  rect(0, -armW/2, l5, armW);
+  popMatrix();
+
+  pushMatrix();
+  translate(start_l6.x,start_l6.y);
+  rotate(a4+a5+a6);
+  rect(0, -armW/2, l6, armW);
+  popMatrix();
+
+  pushMatrix();
+  translate(start_l7.x,start_l7.y);
+  rotate(a4+a5+a6+a7);
+  rect(0, -armW/2, l7, armW);
   popMatrix();
   
 }
