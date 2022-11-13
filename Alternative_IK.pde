@@ -10,7 +10,7 @@ Vec2 point1 = new Vec2(450, 300);
 Vec2 point2 = new Vec2(550, 300);
 
 float angle1, angle2, angle3;
-float x1, y1, z1, x2, y2, z2, x3, y3, z3, diff1, diff2, diff3;
+float x1, y1, x2, y2, x3, y3;
 
 void update() {
   Vec2 goal = new Vec2(mouseX, mouseY);
@@ -44,10 +44,6 @@ void update() {
   else  {
     angle1 = PI + atan(y1/x1);
   }
-  // z1 = sqrt(x1*x1+y1*y1);
-  // diff1 = x1/z1;
-  // diff1 = clamp(diff1, -1, 1);
-  // angle1 = acos(diff1);
 
   x2 = point2.x-point1.x;
   y2 = point2.y-point1.y;
@@ -58,10 +54,6 @@ void update() {
   else {
     angle2 = PI + atan(y2/x2);
   }
-  // z2 = sqrt(x2*x2+y2*y2);
-  // diff2 = x2/z2;
-  // diff2 = clamp(diff2, -1, 1);
-  // angle2 = acos(diff2);
 
   x3 = goal.x-point2.x;
   y3 = goal.y-point2.y;
@@ -72,10 +64,6 @@ void update() {
   else {
     angle3 = PI + atan(y3/x3);
   }
-  // z3 = sqrt(x3*x3+y3*y3);
-  // diff3 = x3/z3;
-  // diff3 = clamp(diff3, -1, 1);
-  // angle3 = acos(diff3);
 
   //println("point1: ", root.x, " ", root.y, "point2: ", point1.x, " ",  point1.y, "point3: ", point2.x, " ",  point2.y);
   println("angle1: ", angle1, "angle2: ", angle2, "angle3: ", angle3);
