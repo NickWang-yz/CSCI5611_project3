@@ -37,7 +37,7 @@ INTRODUCTION:
  */
 
 void setup() {
-  size(640, 480);
+  size(1640, 1480);
   surface.setTitle("Inverse Kinematics [CSCI 5611 Example]");
 }
 
