@@ -82,6 +82,8 @@ float a7 = 0.3;
 Vec2 start_l1, start_l2, start_l3, endPoint;
 Vec2 start_l5, start_l6, start_l7, endPoint2;
 
+Vec2 reset_goal = new Vec2(400,1000);
+
 float angleSpeedLimit = 0.00001;
 
 void solve(float dt){
@@ -102,7 +104,7 @@ void solve(float dt){
     else
       a7 -= (angleSpeedLimit+dt);
   }
-  //a7 = clamp(a7, 0, PI/2);
+  a7 = clamp(a3, -PI/4, PI/4);
 
   /*TODO: Wrist joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
@@ -119,7 +121,7 @@ void solve(float dt){
     else
       a6 -= (angleSpeedLimit+dt);
   }
-  //a6 = clamp(a6, 0, PI/2);
+  a6 = clamp(a6, -PI/2, 0);
 
   /*TODO: Wrist joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
@@ -136,7 +138,7 @@ void solve(float dt){
     else
       a5 -= (angleSpeedLimit+dt);
   }
-  //a5 = clamp(a5, 0, PI/2);
+  a5 = clamp(a5, -2*PI/3, 0);
   /*TODO: Wrist joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
 
@@ -153,7 +155,7 @@ void solve(float dt){
     else
       a4 -= (angleSpeedLimit+dt);
   }
-  //a4 = clamp(a4, 0, PI/2);
+  a4 = clamp(a4, 2*PI/3, 5*PI/3);
   /*TODO: Shoulder joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
 
@@ -169,7 +171,7 @@ void solve(float dt){
     else
       a3 -= (angleSpeedLimit+dt);
   }
-  a3 = clamp(a3, 0, PI/2);
+  a3 = clamp(a3, -PI/4, PI/4);
   /*TODO: Wrist joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
 
@@ -185,7 +187,7 @@ void solve(float dt){
     else
       a2 -= (angleSpeedLimit+dt);
   }
-  a2 = clamp(a2, 0, PI/2);
+  a2 = clamp(a2, 0, 2*PI/3);
   /*TODO: Wrist joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
 
@@ -203,7 +205,7 @@ void solve(float dt){
     else
       a1 -= (angleSpeedLimit+dt);
   }
-  a1 = clamp(a1, 0, 5*PI/6);
+  a1 = clamp(a1, 0, 2*PI/3);
   fk(); //Update link positions with fk (e.g. end effector changed)
 
 
@@ -221,7 +223,7 @@ void solve(float dt){
     else
       a0 -= (angleSpeedLimit+dt);
   }
-  a0 = clamp(a0, -PI/2, PI/2);
+  a0 = clamp(a0, -2*PI/3, PI/3);
   /*TODO: Shoulder joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
 
