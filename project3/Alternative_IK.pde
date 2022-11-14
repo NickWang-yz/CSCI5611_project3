@@ -1,19 +1,22 @@
-void setup(){
-  size(1640,1480);
-  surface.setTitle("Inverse Kinematics [CSCI 5611 Example]");
-}
+float arml = 80;
 
-float arml = 100;
+Vec2 root = new Vec2(590,400);
+Vec2 point1 = new Vec2(670, 400);
+Vec2 point2 = new Vec2(750, 400);
 
-Vec2 root = new Vec2(350,300);
-Vec2 point1 = new Vec2(450, 300);
-Vec2 point2 = new Vec2(550, 300);
+Vec2 goal;
 
 float angle1, angle2, angle3;
 float x1, y1, x2, y2, x3, y3;
 
+void setup(){
+  size(1640,1480);
+  surface.setTitle("Inverse Kinematics [CSCI 5611 Example]");
+
+  goal = new Vec2(random(root.x-3*80, root.x+3*80), random(root.y-3*80, root.y+3*80));
+}
+
 void update() {
-  Vec2 goal = new Vec2(mouseX, mouseY);
   Vec2 startGoal, normaStartGoal;
 
   for(int i = 0; i < 5; i++) {
@@ -69,10 +72,10 @@ void update() {
   println("angle1: ", angle1, "angle2: ", angle2, "angle3: ", angle3);
 }
 
-Vec2 robotHead = new Vec2(250, 200);
-Vec2 robotBody = new Vec2(220, 230);
-Vec2 robotEyeLeft = new Vec2(275, 215);
-Vec2 robotEyeRight = new Vec2(305, 215);
+Vec2 robotHead = new Vec2(550, 300);
+Vec2 robotBody = new Vec2(520, 330);
+Vec2 robotEyeLeft = new Vec2(575, 315);
+Vec2 robotEyeRight = new Vec2(605, 315);
 float armW = 20;
 
 void draw() {
@@ -123,6 +126,18 @@ void draw() {
   rotate(angle3);
   rect(0, -armW/2, arml, armW);
   popMatrix();
+
+  fill(255, 0, 0);
+  pushMatrix();
+  translate(goal.x,goal.y);
+  circle(0, 0, 20);
+  popMatrix();
+}
+
+void keyPressed() {
+  if(key == 'r') {
+    goal = new Vec2(random(590-4*80, 590+4*80), random(300-4*80, 300+4*80)); 
+  }
 }
 
 public class Vec2 {

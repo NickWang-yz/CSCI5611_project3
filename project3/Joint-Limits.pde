@@ -1,80 +1,40 @@
-//Inverse Kinematics
-//CSCI 5611 IK [Solution]
-// Stephen J. Guy <sjguy@umn.edu>
 
-/*
-INTRODUCTION:
-Rather than making an artist control every aspect of a characters animation, we will often specify 
-key points (e.g., center of mass and hand position) and let an optimizer find the right angles for 
-all of the joints in the character's skelton. This is called Inverse Kinematics (IK). Here, we start 
-with some simple IK code and try to improve the results a bit to get better motion.
-
-TODO:
-Step 1. Change the joint lengths and colors to look more like a human arm. Try to match 
-        the length ratios of your own arm/hand, and try to match your own skin tone in the rendering.
-
-Step 2: Add an angle limit to the wrist joint, and limit it to be within +/- 90 degrees relative
-        to the lower arm.
-        -Be careful to put the joint limits for the wrist *before* you compute the new end effoctor
-         position for the next link in CCD
-
-Step 3: Add an angle limit to the shoulder joint to limit the joint to be between 0 and 90 degrees, 
-        this should stop the top of the arm from moving off screen.
-
-Step 4: Cap the acceleration of each joint so the joints can only update slowly. Try to tweak the 
-        acceleration cap to be different for each joint to get a good effect on the arm motion.
-
-Step 5: Try adding a 4th limb to the IK chain.
-
-
-CHALLENGE:
-
-1. Go back to the 3-limb arm, can you make it look more human-like. Try adding a simple body to 
-   the scene using circles and rectangles. Can you make a scene where the character picks up 
-   something and moves it somewhere?
-2. Create a more full skeleton. How do you handle the torso having two different arms?
-
-*/
-
-void setup(){
-  size(640,480);
-  surface.setTitle("Inverse Kinematics [CSCI 5611 Example]");
-}
+Vec2 goal;
 
 //Root
-Vec2 root = new Vec2(350,300);
-Vec2 rootLeft = new Vec2(230, 300);
+Vec2 root = new Vec2(590,400);
+Vec2 rootLeft = new Vec2(590, 400);
 
 //Arm 0
-float l0 = 100; 
+float l0 = 80; 
 float a0 = 0.3; //Shoulder joint
 
 //Arm 1
-float l1 = 100;
+float l1 = 80;
 float a1 = 0.3; //Elbow joint
 
 //Arm 2
-float l2 = 100;
+float l2 = 80;
 float a2 = 0.3; //Wrist joint
 
 //hand
-float l3 = 100;
+float l3 = 80;
 float a3 = 0.3;
 
 //Arm 0
-float l4 = 100; 
+float l4 = 80; 
 float a4 = 0.3; //Shoulder joint
 
 //Arm 1
-float l5 = 100;
+float l5 = 80;
 float a5 = 0.3; //Elbow joint
 
 //Arm 2
-float l6 = 100;
+float l6 = 80;
 float a6 = 0.3; //Wrist joint
 
 //hand
-float l7 = 100;
+float l7 = 80;
 float a7 = 0.3;
 
 Vec2 start_l1,start_l2,start_l3,endPoint;
@@ -82,9 +42,16 @@ Vec2 start_l5,start_l6,start_l7,endPoint2;
 
 float angleSpeedLimit = 0.00001;
 
+void setup(){
+  size(1640,1480);
+  surface.setTitle("Inverse Kinematics [CSCI 5611 Example]");
+
+  goal = new Vec2(random(root.x-4*80, root.x+4*80), random(root.y-4*80, root.y+4*80));
+}
+
 void solve(float dt){
-  Vec2 goal = new Vec2(mouseX, mouseY);
-  
+  //goal = new Vec2(mouseX, mouseY);
+
   Vec2 startToGoal, startToEndEffector;
   float dotProd, angleDiff;
 
@@ -213,7 +180,7 @@ void solve(float dt){
   /*TODO: Shoulder joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
 
-  //println("Angle 0:",a0,"Angle 1:",a1,"Angle 2:",a2, "Angle 3:",a3);
+  println("Angle 0:",a0,"Angle 1:",a1,"Angle 2:",a2, "Angle 3:",a3);
 }
 
 void fk(){
@@ -229,13 +196,15 @@ void fk(){
 }
 
 float armW = 20;
-Vec2 robotHead = new Vec2(250, 200);
-Vec2 robotBody = new Vec2(220, 230);
-Vec2 robotEyeLeft = new Vec2(275, 215);
-Vec2 robotEyeRight = new Vec2(305, 215);
+Vec2 robotHead = new Vec2(550, 300);
+Vec2 robotBody = new Vec2(520, 330);
+Vec2 robotEyeLeft = new Vec2(575, 315);
+Vec2 robotEyeRight = new Vec2(605, 315);
 void draw(){
   fk();
-  solve(1/frameRate);
+  for(int i = 0; i < 20; i++) {
+    solve(0.05/frameRate);
+  } 
   
   background(250,250,250);
   
@@ -309,7 +278,19 @@ void draw(){
   rotate(a4+a5+a6+a7);
   rect(0, -armW/2, l7, armW);
   popMatrix();
+
+  fill(255, 0, 0);
+  pushMatrix();
+  translate(goal.x,goal.y);
+  circle(0, 0, 20);
+  popMatrix();
   
+}
+
+void keyPressed() {
+  if(key == 'r') {
+    goal = new Vec2(random(590-4*80, 590+4*80), random(300-4*80, 300+4*80)); 
+  }
 }
 
 
