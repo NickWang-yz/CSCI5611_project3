@@ -5,13 +5,8 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     // Start is called before the first frame update
-    [Header("Camera Settings")]
     public float mouseSensitivity = 0.6f;
-    Vector3 defaultCamPos;
-    Quaternion defaultCamRot;
     Vector2 mouseRot;
-
-    bool setup = true;
 
     void Start()
     {

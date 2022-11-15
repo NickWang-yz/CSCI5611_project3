@@ -26,11 +26,20 @@ public class IK : MonoBehaviour
         Vector3 endPos = endEffectorObj.transform.position;
         float step = rotationSpeed * Time.deltaTime;
 
-        Vector3 fingerPos = wristJointObj.transform.position;
-        Quaternion fingerRot = wristJointObj.transform.rotation;
+        Vector3 euler;
+        float x, y, z;
+
+        Vector3 fingerPos = fingerJointObj.transform.position;
+        Quaternion fingerRot = fingerJointObj.transform.rotation;
         Vector3 startToGoal = (goalPos - fingerPos).normalized;
         Vector3 startToEnd = (endPos - fingerPos).normalized;
         Quaternion newRotation = Quaternion.FromToRotation(startToEnd, startToGoal) * fingerRot;
+        euler = newRotation.eulerAngles;
+        if (euler.x > 180) euler.x -= 360;
+        if (euler.z > 180) euler.z -= 360;
+        x = Mathf.Clamp(euler.x, -45, 45);
+        z = Mathf.Clamp(euler.z, -90, 90);
+        newRotation = Quaternion.Euler(x, 0, z);
         Quaternion rotateTowards = Quaternion.RotateTowards(fingerRot, newRotation, step);
         fingerJointObj.transform.rotation = rotateTowards;
 
@@ -41,6 +50,14 @@ public class IK : MonoBehaviour
         startToGoal = (goalPos - wristPos).normalized;
         startToEnd = (endPos - wristPos).normalized;
         newRotation = Quaternion.FromToRotation(startToEnd, startToGoal) * wristRot;
+        euler = newRotation.eulerAngles;
+        if (euler.x > 180) euler.x -= 360;
+        if (euler.y > 180) euler.y -= 360;
+        if (euler.z > 180) euler.z -= 360;
+        x = Mathf.Clamp(euler.x, -90, 90);
+        y = Mathf.Clamp(euler.y, 0, 180);
+        z = Mathf.Clamp(euler.z, -90, 90);
+        newRotation = Quaternion.Euler(x, y, z);
         wristJointObj.transform.rotation = Quaternion.RotateTowards(wristRot, newRotation, step);
 
         goalPos = goal.transform.position;
@@ -50,9 +67,10 @@ public class IK : MonoBehaviour
         startToGoal = (goalPos - elbowPos).normalized;
         startToEnd = (endPos - elbowPos).normalized;
         newRotation = Quaternion.FromToRotation(startToEnd, startToGoal) * elbowRot;
-        //Vector3 euler = newRotation.eulerAngles;
-        //float x = Mathf.Clamp(euler.x, -150, 0);
-        //newRotation = Quaternion.Euler(x, euler.y, 0);
+        euler = newRotation.eulerAngles;
+        if (euler.z > 180) euler.z -= 360;
+        z = Mathf.Clamp(euler.z, -45, 120);
+        newRotation = Quaternion.Euler(0, 0, z);
         rotateTowards = Quaternion.RotateTowards(elbowRot, newRotation, step);
         elbowJointObj.transform.rotation = rotateTowards;
 
@@ -63,10 +81,13 @@ public class IK : MonoBehaviour
         startToGoal = (goalPos - rootPos).normalized;
         startToEnd = (endPos - rootPos).normalized;
         newRotation = Quaternion.FromToRotation(startToEnd, startToGoal) * rootRot;
-        Vector3 euler = newRotation.eulerAngles;
-        float x = Mathf.Clamp(euler.x, -90, 90);
-        float z = Mathf.Clamp(euler.z, -90, 90);
-        newRotation = Quaternion.Euler(x, euler.y, z);
+        euler = newRotation.eulerAngles;
+        if (euler.x > 180) euler.x -= 360;
+        if (euler.z > 180) euler.z -= 360;
+        // Attempts to use angles between 0/360 (90, 270) vs (-90, 90) causes a gimbal lock?
+        x = Mathf.Clamp(euler.x, -90, 90);
+        z = Mathf.Clamp(euler.z, -90, 90);
+        newRotation = Quaternion.Euler(x, 0, z);
         rotateTowards = Quaternion.RotateTowards(rootRot, newRotation, step);
         rootJointObj.transform.rotation = rotateTowards;
     }
