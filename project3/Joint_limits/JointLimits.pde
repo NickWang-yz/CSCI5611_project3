@@ -117,7 +117,7 @@ void solve(float dt){
     else
       a4 -= (angleSpeedLimit+dt);
   }
-  a4 = clamp(a4, 2*PI/3, 5*PI/3);
+  a4 = clamp(a4, 5*PI/6, 7*PI/6);
   /*TODO: Shoulder joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
 
@@ -185,7 +185,7 @@ void solve(float dt){
     else
       a0 -= (angleSpeedLimit+dt);
   }
-  a0 = clamp(a0, -2*PI/3, PI/3);
+  a0 = clamp(a0, -PI/6, PI/6);
   /*TODO: Shoulder joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
 
