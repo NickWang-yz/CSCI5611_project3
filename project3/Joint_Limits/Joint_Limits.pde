@@ -1,167 +1,219 @@
-Vec2 goal1, goal2;
+//Inverse Kinematics
+//CSCI 5611 IK [Solution]
+// Stephen J. Guy <sjguy@umn.edu>
+
+/*
+INTRODUCTION:
+Rather than making an artist control every aspect of a characters animation, we will often specify 
+key points (e.g., center of mass and hand position) and let an optimizer find the right angles for 
+all of the joints in the character's skelton. This is called Inverse Kinematics (IK). Here, we start 
+with some simple IK code and try to improve the results a bit to get better motion.
+
+TODO:
+Step 1. Change the joint lengths and colors to look more like a human arm. Try to match 
+        the length ratios of your own arm/hand, and try to match your own skin tone in the rendering.
+
+Step 2: Add an angle limit to the wrist joint, and limit it to be within +/- 90 degrees relative
+        to the lower arm.
+        -Be careful to put the joint limits for the wrist *before* you compute the new end effoctor
+         position for the next link in CCD
+
+Step 3: Add an angle limit to the shoulder joint to limit the joint to be between 0 and 90 degrees, 
+        this should stop the top of the arm from moving off screen.
+
+Step 4: Cap the acceleration of each joint so the joints can only update slowly. Try to tweak the 
+        acceleration cap to be different for each joint to get a good effect on the arm motion.
+
+Step 5: Try adding a 4th limb to the IK chain.
+
+
+CHALLENGE:
+
+1. Go back to the 3-limb arm, can you make it look more human-like. Try adding a simple body to 
+   the scene using circles and rectangles. Can you make a scene where the character picks up 
+   something and moves it somewhere?
+2. Create a more full skeleton. How do you handle the torso having two different arms?
+
+*/
+
+void setup(){
+  size(640,480);
+  surface.setTitle("Inverse Kinematics [CSCI 5611 Example]");
+}
 
 //Root
-Vec2 root = new Vec2(590,400);
-Vec2 rootLeft = new Vec2(590, 400);
+Vec2 root = new Vec2(350,300);
+Vec2 rootLeft = new Vec2(230, 300);
 
 //Arm 0
-float l0 = 80; 
+float l0 = 100; 
 float a0 = 0.3; //Shoulder joint
 
 //Arm 1
-float l1 = 80;
+float l1 = 100;
 float a1 = 0.3; //Elbow joint
 
 //Arm 2
-float l2 = 80;
+float l2 = 100;
 float a2 = 0.3; //Wrist joint
 
 //hand
-float l3 = 80;
+float l3 = 100;
 float a3 = 0.3;
 
 //Arm 0
-float l4 = 80; 
+float l4 = 100; 
 float a4 = 0.3; //Shoulder joint
 
 //Arm 1
-float l5 = 80;
+float l5 = 100;
 float a5 = 0.3; //Elbow joint
 
 //Arm 2
-float l6 = 80;
+float l6 = 100;
 float a6 = 0.3; //Wrist joint
 
 //hand
-float l7 = 80;
+float l7 = 100;
 float a7 = 0.3;
 
 Vec2 start_l1,start_l2,start_l3,endPoint;
 Vec2 start_l5,start_l6,start_l7,endPoint2;
 
-void setup(){
-  size(1640,1480);
-  surface.setTitle("Inverse Kinematics [CSCI 5611 Example]");
+float angleSpeedLimit = 0.00001;
 
-  goal1 = new Vec2(random(root.x-4*80, root.x), random(root.y-4*80, root.y+4*80));
-  goal2 = new Vec2(random(root.x, root.x+4*80), random(root.y-4*80, root.y+4*80));
-}
-
-void solve(){
-  //goal = new Vec2(mouseX, mouseY);
-
+void solve(float dt){
+  Vec2 goal = new Vec2(mouseX, mouseY);
+  
   Vec2 startToGoal, startToEndEffector;
   float dotProd, angleDiff;
 
   //Update wrist joint
-  startToGoal = goal1.minus(start_l7);
+  startToGoal = goal.minus(start_l7);
   startToEndEffector = endPoint2.minus(start_l7);
   dotProd = dot(startToGoal.normalized(),startToEndEffector.normalized());
   dotProd = clamp(dotProd,-1,1);
   angleDiff = acos(dotProd);
-  if (cross(startToGoal,startToEndEffector) < 0)
-    a7 += angleDiff;
-  else
-    a7 -= angleDiff;
+  if(angleDiff > 0.01) {
+    if (cross(startToGoal,startToEndEffector) < 0)
+      a7 += (angleSpeedLimit+dt);
+    else
+      a7 -= (angleSpeedLimit+dt);
+  }
   /*TODO: Wrist joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
 
   //Update wrist joint
-  startToGoal = goal1.minus(start_l6);
+  startToGoal = goal.minus(start_l6);
   startToEndEffector = endPoint2.minus(start_l6);
   dotProd = dot(startToGoal.normalized(),startToEndEffector.normalized());
   dotProd = clamp(dotProd,-1,1);
   angleDiff = acos(dotProd);
-  if (cross(startToGoal,startToEndEffector) < 0)
-    a6 += angleDiff;
-  else
-    a6 -= angleDiff;
+  if(angleDiff > 0.01) {
+    if (cross(startToGoal,startToEndEffector) < 0)
+      a6 += (angleSpeedLimit+dt);
+    else
+      a6 -= (angleSpeedLimit+dt);
+  }
   /*TODO: Wrist joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
 
   //Update wrist joint
-  startToGoal = goal1.minus(start_l5);
+  startToGoal = goal.minus(start_l5);
   startToEndEffector = endPoint2.minus(start_l5);
   dotProd = dot(startToGoal.normalized(),startToEndEffector.normalized());
   dotProd = clamp(dotProd,-1,1);
   angleDiff = acos(dotProd);
-  if (cross(startToGoal,startToEndEffector) < 0)
-    a5 += angleDiff;
-  else
-    a5 -= angleDiff;
+  if(angleDiff > 0.01) {
+    if (cross(startToGoal,startToEndEffector) < 0)
+      a5 += (angleSpeedLimit+dt);
+    else
+      a5 -= (angleSpeedLimit+dt);
+  }
   /*TODO: Wrist joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
 
   //Update shoulder joint
-  startToGoal = goal1.minus(rootLeft);
+  startToGoal = goal.minus(rootLeft);
   if (startToGoal.length() < .0001) return;
   startToEndEffector = endPoint2.minus(rootLeft);
   dotProd = dot(startToGoal.normalized(),startToEndEffector.normalized());
   dotProd = clamp(dotProd,-1,1);
   angleDiff = acos(dotProd);
-  if (cross(startToGoal,startToEndEffector) < 0)
-    a4 += angleDiff;
-  else
-    a4 -= angleDiff;
+  if(angleDiff > 0.01) {
+    if (cross(startToGoal,startToEndEffector) < 0)
+      a4 += (angleSpeedLimit+dt);
+    else
+      a4 -= (angleSpeedLimit+dt);
+  }
   /*TODO: Shoulder joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
 
   //Update wrist joint
-  startToGoal = goal2.minus(start_l3);
+  startToGoal = goal.minus(start_l3);
   startToEndEffector = endPoint.minus(start_l3);
   dotProd = dot(startToGoal.normalized(),startToEndEffector.normalized());
   dotProd = clamp(dotProd,-1,1);
   angleDiff = acos(dotProd);
-  if (cross(startToGoal,startToEndEffector) < 0)
-    a3 += angleDiff;
-  else
-    a3 -= angleDiff;
+  if(angleDiff > 0.01) {
+    if (cross(startToGoal,startToEndEffector) < 0)
+      a3 += (angleSpeedLimit+dt);
+    else
+      a3 -= (angleSpeedLimit+dt);
+  }
   /*TODO: Wrist joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
   
   //Update wrist joint
-  startToGoal = goal2.minus(start_l2);
+  startToGoal = goal.minus(start_l2);
   startToEndEffector = endPoint.minus(start_l2);
   dotProd = dot(startToGoal.normalized(),startToEndEffector.normalized());
   dotProd = clamp(dotProd,-1,1);
   angleDiff = acos(dotProd);
-  if (cross(startToGoal,startToEndEffector) < 0)
-    a2 += angleDiff;
-  else
-    a2 -= angleDiff;
+  if(angleDiff > 0.01) {
+    if (cross(startToGoal,startToEndEffector) < 0)
+      a2 += (angleSpeedLimit+dt);
+    else
+      a2 -= (angleSpeedLimit+dt);
+  }
   /*TODO: Wrist joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
   
   
   
   //Update elbow joint
-  startToGoal = goal2.minus(start_l1);
+  startToGoal = goal.minus(start_l1);
   startToEndEffector = endPoint.minus(start_l1);
   dotProd = dot(startToGoal.normalized(),startToEndEffector.normalized());
   dotProd = clamp(dotProd,-1,1);
   angleDiff = acos(dotProd);
-  if (cross(startToGoal,startToEndEffector) < 0)
-    a1 += angleDiff;
-  else
-    a1 -= angleDiff;
+  if(angleDiff > 0.01) {
+    if (cross(startToGoal,startToEndEffector) < 0)
+      a1 += (angleSpeedLimit+dt);
+    else
+      a1 -= (angleSpeedLimit+dt);
+  }
   fk(); //Update link positions with fk (e.g. end effector changed)
   
   
   //Update shoulder joint
-  startToGoal = goal2.minus(root);
+  startToGoal = goal.minus(root);
   if (startToGoal.length() < .0001) return;
   startToEndEffector = endPoint.minus(root);
   dotProd = dot(startToGoal.normalized(),startToEndEffector.normalized());
   dotProd = clamp(dotProd,-1,1);
   angleDiff = acos(dotProd);
-  if (cross(startToGoal,startToEndEffector) < 0)
-    a0 += angleDiff;
-  else
-    a0 -= angleDiff;
+  println("angleDiff: ", angleDiff);
+  if(angleDiff > 0.01) {
+    if (cross(startToGoal,startToEndEffector) < 0)
+      a0 += (angleSpeedLimit+dt);
+    else
+      a0 -= (angleSpeedLimit+dt);
+  }
   /*TODO: Shoulder joint limits here*/
   fk(); //Update link positions with fk (e.g. end effector changed)
 
-  println("Angle 0:",a0,"Angle 1:",a1,"Angle 2:",a2, "Angle 3:",a3);
+  //println("Angle 0:",a0,"Angle 1:",a1,"Angle 2:",a2, "Angle 3:",a3);
 }
 
 void fk(){
@@ -177,13 +229,13 @@ void fk(){
 }
 
 float armW = 20;
-Vec2 robotHead = new Vec2(550, 300);
-Vec2 robotBody = new Vec2(520, 330);
-Vec2 robotEyeLeft = new Vec2(575, 315);
-Vec2 robotEyeRight = new Vec2(605, 315);
+Vec2 robotHead = new Vec2(250, 200);
+Vec2 robotBody = new Vec2(220, 230);
+Vec2 robotEyeLeft = new Vec2(275, 215);
+Vec2 robotEyeRight = new Vec2(305, 215);
 void draw(){
   fk();
-  solve();
+  solve(1/frameRate);
   
   background(250,250,250);
   
@@ -257,27 +309,9 @@ void draw(){
   rotate(a4+a5+a6+a7);
   rect(0, -armW/2, l7, armW);
   popMatrix();
-
-  fill(255, 0, 0);
-  pushMatrix();
-  translate(goal1.x,goal1.y);
-  circle(0, 0, 20);
-  popMatrix();
-
-  fill(255, 255, 0);
-  pushMatrix();
-  translate(goal2.x,goal2.y);
-  circle(0, 0, 20);
-  popMatrix();
   
 }
 
-void keyPressed() {
-  if(key == 'r') {
-    goal1 = new Vec2(random(root.x-4*80, root.x), random(root.y-4*80, root.y+4*80));
-    goal2 = new Vec2(random(root.x, root.x+4*80), random(root.y-4*80, root.y+4*80));
-  }
-}
 
 
 //-----------------
